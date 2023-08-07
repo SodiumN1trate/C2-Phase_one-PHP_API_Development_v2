@@ -18,7 +18,7 @@ RUN echo "upload_max_filesize = 100M" >> /usr/local/etc/php/conf.d/execution.ini
 
 WORKDIR /var/www/html/
 
-COPY . /var/www/html/ 
+COPY . /var/www/html/
 
 RUN rm -r .git
 RUN rm Dockerfile
@@ -28,3 +28,4 @@ RUN composer install
 RUN chown -R www-data.www-data *
 
 ENTRYPOINT ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+
