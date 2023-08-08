@@ -22,4 +22,8 @@ class LocationSeatRow extends Model
     public function seats() {
         return $this->hasMany(LocationSeat::class);
     }
+
+    public function show() {
+        return $this->belongsTo(Show::class);
+    }
 }

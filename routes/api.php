@@ -15,8 +15,11 @@ use App\Http\Controllers\Api\ConcertController;
 */
 
 Route::get('/concerts', [ConcertController::class, 'getConcerts'])->name('getConcerts');
+
 Route::get('/concerts/{concert}', [ConcertController::class, 'showConcert'])->name('showConcert');
+
 Route::get('/concerts/{concert_id}/shows/{show_id}/seating', [ConcertController::class, 'seating'])->name('getSeating');
 Route::post('/concerts/{concert_id}/shows/{show_id}/reservation', [ConcertController::class, 'reservation'])->name('setReservation');
-Route::post('/concerts/{concert_id}/shows/{show_id}/reservation', [ConcertController::class, 'reservation'])->name('setReservation');
 Route::post('/concerts/{concert_id}/shows/{show_id}/booking', [ConcertController::class, 'booking'])->name('setBooking');
+
+Route::get('/tickets', [ConcertController::class, 'getTickets'])->name('getTickets');

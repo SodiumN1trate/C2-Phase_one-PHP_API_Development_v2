@@ -196,15 +196,14 @@ class ConcertController extends Controller
 
         foreach ($validation as $key => $value) {
           if (!isset($value)) {
-              $errors[$key] = 'The ' . $key . ' is required.';
+              $errors[$key] = 'The ' . \Illuminate\Support\Str::replace('_', ' ', $key) . ' is required.';
               continue ;
           }
 
             if (!is_string($value)) {
-                $errors[$key] = 'The ' . $key . ' must be a string.';
-                continue ;
+                $errors[$key] = 'The ' . \Illuminate\Support\Str::replace('_', ' ', $key) . ' must be a string.';
             }
-        };
+        }
 
         // Return validation errors
         if(count($errors) > 0) {
@@ -219,7 +218,14 @@ class ConcertController extends Controller
             ], 401);
         }
         $booking = Booking::create($validation);
-        $tickets =  $reservation->seats->map(function ($seat) use ($booking) {
+
+        // Create tickets and set correct order
+        $tickets =  $reservation->seats()
+            ->join('location_seat_rows', 'location_seats.location_seat_row_id', '=', 'location_seat_rows.id')
+            ->orderBy('location_seat_rows.order')
+            ->orderBy('number')
+            ->select('location_seats.*')
+            ->get()->map(function ($seat) use ($booking) {
             $ticket = Ticket::create([
                 'code' => \Illuminate\Support\Str::random(10),
                 'booking_id' => $booking->id,
@@ -236,6 +242,49 @@ class ConcertController extends Controller
 
     }
 
+    /*
+     * Get tickets
+     */
+    public function getTickets(Request $request) {
+        // Get all inputs
+        $validation = [
+            'name' => $request->input('name'),
+            'code' => $request->input('code'),
+        ];
+
+        // Validate inputs
+        foreach ($validation as $key => $value) {
+            if (!isset($value)) {
+                return response()->json([
+                    'errors' => 'Unauthorized',
+                ], 401);
+            }
+        }
+
+        $ticket = Ticket::where('code', $validation['code'])->first();
+        $booking = Booking::where('id', $ticket->booking_id)->where('name', $validation['name'])->first();
+        if (!isset($ticket) || !isset($booking)) {
+            return response()->json([
+                'errors' => 'Unauthorized',
+            ], 401);
+        }
+
+        $reservation = Reservation::find($ticket->seat->reservation_id);
+
+        // Create tickets and set correct order
+        $tickets =  $reservation->seats()
+            ->join('location_seat_rows', 'location_seats.location_seat_row_id', '=', 'location_seat_rows.id')
+            ->orderBy('location_seat_rows.order')
+            ->orderBy('number')
+            ->select('location_seats.*')
+            ->get();
+
+        dd($tickets);
+        return response()->json([
+            'tickets' => TicketResource::collection($tickets),
+        ], 201);
+
+    }
 
     private function outputErrors($errors) {
         return response()->json([

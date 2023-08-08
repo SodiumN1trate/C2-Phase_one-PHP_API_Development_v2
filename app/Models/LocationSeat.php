@@ -22,6 +22,6 @@ class LocationSeat extends Model
     ];
 
     public function seatRow() {
-        return $this->belongsTo(LocationSeatRow::class);
+        return $this->belongsTo(LocationSeatRow::class, 'location_seat_row_id');
     }
 }

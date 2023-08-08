@@ -24,6 +24,6 @@ class Ticket extends Model
     ];
 
     public function seat() {
-        return $this->hasMany(LocationSeat::class);
+        return $this->hasOne(LocationSeat::class);
     }
 }
