@@ -22,4 +22,6 @@ Route::get('/concerts/{concert_id}/shows/{show_id}/seating', [ConcertController:
 Route::post('/concerts/{concert_id}/shows/{show_id}/reservation', [ConcertController::class, 'reservation'])->name('setReservation');
 Route::post('/concerts/{concert_id}/shows/{show_id}/booking', [ConcertController::class, 'booking'])->name('setBooking');
 
-Route::get('/tickets', [ConcertController::class, 'getTickets'])->name('getTickets');
+Route::post('/tickets', [ConcertController::class, 'getTickets'])->name('getTickets');
+
+Route::post('/tickets/{ticket_id}/cancel', [ConcertController::class, 'cancelTickets'])->name('cancelTickets');

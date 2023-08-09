@@ -243,7 +243,7 @@ class ConcertController extends Controller
     }
 
     /*
-     * Get tickets
+       Get tickets
      */
     public function getTickets(Request $request) {
         // Get all inputs
@@ -256,7 +256,7 @@ class ConcertController extends Controller
         foreach ($validation as $key => $value) {
             if (!isset($value)) {
                 return response()->json([
-                    'errors' => 'Unauthorized',
+                    'error' => 'Unauthorized',
                 ], 401);
             }
         }
@@ -265,7 +265,7 @@ class ConcertController extends Controller
         $booking = Booking::where('id', $ticket->booking_id)->where('name', $validation['name'])->first();
         if (!isset($ticket) || !isset($booking)) {
             return response()->json([
-                'errors' => 'Unauthorized',
+                'error' => 'Unauthorized',
             ], 401);
         }
 
@@ -277,13 +277,56 @@ class ConcertController extends Controller
             ->orderBy('location_seat_rows.order')
             ->orderBy('number')
             ->select('location_seats.*')
-            ->get();
+            ->get()->map(function ($seat) {
+                return Ticket::find($seat->ticket_id);
+            });
 
-        dd($tickets);
         return response()->json([
             'tickets' => TicketResource::collection($tickets),
         ], 201);
 
+    }
+
+    /*
+        Cancel ticket
+    */
+    public function cancelTickets(Request $request, int $ticket_id) {
+        // Get all inputs
+        $validation = [
+            'name' => $request->input('name'),
+            'code' => $request->input('code'),
+        ];
+
+        // Validate inputs
+        foreach ($validation as $key => $value) {
+            if (!isset($value)) {
+                return response()->json([
+                    'error' => 'Unauthorized',
+                ], 401);
+            }
+        }
+
+        $ticket = Ticket::find($ticket_id);
+
+        if(!isset($ticket)) {
+            return response()->json([
+                'error' => 'A ticket with this ID does not exist',
+            ], 404);
+        }
+
+        $booking = Booking::where('id', $ticket->booking_id)->where('name', $validation['name'])->first();
+
+        if ($ticket->code !== $validation['code'] || !isset($booking)) {
+            return response()->json([
+                'error' => 'Unauthorized',
+            ], 401);
+        }
+
+        // Remove ticket from seat
+        $ticket->seat->ticket_id = null;
+        $ticket->seat->save();
+
+        return response()->json([], 204);
     }
 
     private function outputErrors($errors) {
