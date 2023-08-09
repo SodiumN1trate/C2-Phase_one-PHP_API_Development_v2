@@ -123,7 +123,8 @@ class ConcertController extends Controller
                 }
 
                 // TO:DO that is not working
-                if (isset($seatRow->reservation_id) && isset($reservation->id) && $seatRow->reservation_id !== $reservation->id) {
+                $tempRes = Reservation::find($seatRow->reservation_id);
+                if (isset($tempRes) && ($tempRes->token !== $token && $tempRes->expires_at > now())) {
                     $errors['reservations'] = 'Seat ' . $reservationSeat['seat'] .  ' in row '. $reservationSeat['row'] . ' is already taken.';
                 }
 
