@@ -19,7 +19,7 @@ class LocationSeatRowResource extends JsonResource
             'name' => $this->name,
             'seats' => [
                 'total' => $this->seats->count(),
-                'unavailable' => $this->seats()->whereNotNull('ticket_id')->orderBy('number', 'asc')->get()->pluck('id'),
+                'unavailable' => $this->seats()->whereNotNull('ticket_id')->orderBy('number', 'asc')->get()->pluck('number'),
             ],
         ];
     }

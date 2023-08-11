@@ -24,7 +24,9 @@ class ConcertController extends Controller
         Return all concerts
     */
     public function getConcerts() {
-        return ConcertResource::collection(Concert::orderBy('artist', 'asc')->get());
+        return response()->json([
+            'concerts' => ConcertResource::collection(Concert::orderBy('artist', 'asc')->get()),
+        ]);
     }
 
     /*
